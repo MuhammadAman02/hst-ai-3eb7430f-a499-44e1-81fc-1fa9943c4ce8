@@ -1,0 +1,86 @@
+[tool.poetry]
+name = "hst-ai-engineer-project"
+version = "0.1.0"
+description = "HST AI Python Engineer Project Base (2025 Edition)"
+authors = ["HST AI Team"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.8.1,<4.0"
+# Core dependencies
+# NiceGUI 1.4.21-1.4.24 requires FastAPI <0.110.0, >=0.109.1
+fastapi = ">=0.109.1,<0.110.0"
+nicegui = ">=1.4.21,<1.5.0"
+uvicorn = {extras = ["standard"], version = ">=0.30.0,<0.31.0"}
+pydantic = ">=2.8.0,<2.10.0"
+pydantic-settings = ">=2.4.0,<2.6.0"
+python-dotenv = ">=1.0.1,<1.1.0"
+reactpy = ">=1.0.2,<1.1.0"
+
+# Security
+python-jose = ">=3.3.0"
+passlib = ">=1.7.4"
+bcrypt = ">=4.0.1"
+python-multipart = ">=0.0.6"  # For OAuth2 form handling
+
+# API and HTTP
+requests = ">=2.31.0"
+httpx = ">=0.25.0"  # For async HTTP requests
+
+# Utilities
+psutil = ">=5.9.6"  # For system monitoring
+email-validator = ">=2.1.0"  # For email validation
+python-slugify = ">=8.0.1"  # For generating slugs
+tenacity = ">=8.2.3"  # For retrying operations
+
+# Middleware
+starlette-context = ">=0.3.6"  # For request context
+
+# Packaging
+packaging = ">=23.2.0"  # For version parsing
+
+[tool.poetry.group.dev.dependencies]
+# Testing
+pytest = ">=7.4.2"
+pytest-asyncio = ">=0.21.1"
+pytest-cov = ">=4.1.0"
+
+# Code quality
+black = ">=23.10.0"  # Code formatting
+isort = ">=5.12.0"  # Import sorting
+flake8 = ">=6.1.0"  # Linting
+mypy = ">=1.6.1"  # Type checking
+
+# Documentation
+mkdocs = ">=1.5.3"
+mkdocs-material = ">=9.4.6"
+docutils = ">=0.19,<0.22"
+
+# Development tools
+watchdog = ">=3.0.0"  # File watching for auto-reload
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 88
+target-version = ['py38']
+include = '\.pyi?$'
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_functions = "test_*"
+python_classes = "Test*"
