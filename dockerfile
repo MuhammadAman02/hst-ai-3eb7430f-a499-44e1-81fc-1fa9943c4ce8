@@ -1,72 +1,69 @@
-# Build stage
-FROM python:3.11-slim AS builder
-
-WORKDIR /app
+# Multi-stage build for LuxeCloth E-commerce Platform
+FROM python:3.11-slim as builder
 
 # Set environment variables
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
-# Install build dependencies
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
     build-essential \
-    gcc \
-    python3-dev \
-    && apt-get clean \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies
-COPY requirements.txt /app/requirements.txt
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir wheel setuptools && \
-    pip wheel --no-cache-dir --wheel-dir=/app/wheels -r requirements.txt
-
-# Final stage
-FROM python:3.11-slim
-
+# Create and set working directory
 WORKDIR /app
 
+# Copy requirements first for better caching
+COPY requirements.txt .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+# Production stage
+FROM python:3.11-slim
+
 # Set environment variables
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1 \
-    PYTHONPATH=/app \
-    PORT=8000 \
-    HOST=0.0.0.0 \
-    DEBUG=false
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV PORT=8000
 
-# Copy wheels from builder stage
-COPY --from=builder /app/wheels /app/wheels
+# Create non-root user
+RUN groupadd -r appuser && useradd -r -g appuser appuser
 
-# Install runtime dependencies and Python packages
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y \
     curl \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* \
-    && pip install --no-cache-dir --no-index --find-links=/app/wheels/ /app/wheels/* \
-    && rm -rf /app/wheels
+    && rm -rf /var/lib/apt/lists/*
 
-# Create necessary directories
-RUN mkdir -p /app/logs /app/data
+# Set working directory
+WORKDIR /app
+
+# Copy Python dependencies from builder stage
+COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
 
 # Copy application code
-COPY app /app/app
-COPY main.py requirements.txt /app/
+COPY . .
 
-# Copy configuration files
-COPY .env.example /app/.env.example
-COPY fly.toml /app/fly.toml
+# Create necessary directories
+RUN mkdir -p static/uploads && \
+    mkdir -p logs
 
-# Set proper permissions
-RUN chmod +x /app/main.py
+# Set ownership and permissions
+RUN chown -R appuser:appuser /app && \
+    chmod -R 755 /app
 
-# Expose the port the app runs on
-EXPOSE 8000
+# Switch to non-root user
+USER appuser
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8000/health || exit 1
+    CMD curl -f http://localhost:$PORT/health || exit 1
+
+# Expose port
+EXPOSE $PORT
 
 # Run the application
 CMD ["python", "main.py"]
