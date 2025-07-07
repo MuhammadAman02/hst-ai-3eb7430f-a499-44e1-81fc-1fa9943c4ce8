@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <div class="mb-4">
+                <i class="fas fa-exclamation-triangle fa-4x text-warning"></i>
+            </div>
+            
+            <h2 class="luxury-header mb-3">Oops! Something went wrong</h2>
+            
+            <div class="error-alert mb-4">
+                <strong>Error:</strong> {{ error }}
+                
+                {% if error_details %}
+                <details class="mt-3">
+                    <summary>Technical Details (for debugging)</summary>
+                    <div class="mt-2 text-start">
+                        <code>{{ error_details }}</code>
+                    </div>
+                </details>
+                {% endif %}
+            </div>
+            
+            <p class="lead mb-4">
+                We apologize for the inconvenience. Our team has been notified and is working to resolve this issue.
+            </p>
+            
+            <div class="d-flex justify-content-center gap-3">
+                <a href="/" class="btn btn-luxury">Go Home</a>
+                <button onclick="history.back()" class="btn btn-outline-luxury">Go Back</button>
+                <button onclick="location.reload()" class="btn btn-outline-secondary">Retry</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
