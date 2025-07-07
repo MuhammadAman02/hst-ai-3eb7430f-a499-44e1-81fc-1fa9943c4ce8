@@ -41,7 +41,7 @@ project_base/
 ├── .env                  # Environment variables (create this file based on .env.example if provided)
 ├── Dockerfile            # Container configuration
 ├── fly.toml              # fly.io deployment configuration
-├── main.py               # Application entry point (runs the Uvicorn server)
+├── run.py                # Application entry point (runs the Uvicorn server)
 ├── README.md             # This file
 └── requirements.txt      # Python dependencies
 ```
@@ -58,47 +58,26 @@ project_base/
 
 #### Dependency Management
 
-This project uses Poetry for dependency management to ensure compatibility and reproducibility. Poetry provides robust dependency resolution that can automatically handle complex dependency constraints and conflicts. The workflow is as follows:
-
-1. Direct dependencies with version constraints are specified in `pyproject.toml` under `[tool.poetry.dependencies]` (production) and `[tool.poetry.group.dev.dependencies]` (development)
-2. Poetry automatically generates and maintains a `poetry.lock` file with exact versions of all dependencies
-3. The locked dependencies are installed with `poetry install`
+This project uses `pip` and `requirements.txt` for dependency management to ensure compatibility and reproducibility. The `requirements.txt` file lists all necessary dependencies with their specified versions.
 
 To manage dependencies:
 
 ```bash
-# Install Poetry if not already installed
-pip install poetry
-
-# Initialize the project (if not already done)
-python setup_poetry.py
+# Install dependencies
+pip install -r requirements.txt
 
 # Add a new dependency
-poetry add package_name
-
-# Add a development dependency
-poetry add --group dev package_name
+pip install package_name
+pip freeze > requirements.txt
 
 # Remove a dependency
-poetry remove package_name
+pip uninstall package_name
+pip freeze > requirements.txt
 
 # Update all dependencies
-poetry update
-
-# Update a specific dependency
-poetry update package_name
-
-# Show installed dependencies
-poetry show
-
-# Install all dependencies
-poetry install
-
-# Install only production dependencies
-poetry install --without dev
+pip install --upgrade -r requirements.txt
+pip freeze > requirements.txt
 ```
-
-**Note**: Development dependencies are automatically separated from production dependencies in Poetry's group system.
 
 #### Dependency Compatibility
 
@@ -107,7 +86,7 @@ poetry install --without dev
 - **NiceGUI 1.4.21-1.4.24** requires **FastAPI >=0.109.1,<0.110.0**
 - If you need to use a newer FastAPI version (>=0.115.0), you'll need to upgrade to NiceGUI 2.0+ when available
 
-The requirements.txt file has been configured with compatible versions. Do not modify these version constraints unless you're prepared to resolve dependency conflicts.
+The `requirements.txt` file has been configured with compatible versions. Do not modify these version constraints unless you're prepared to resolve dependency conflicts.
 
 #### Automatic Setup (Recommended)
 
@@ -116,34 +95,29 @@ The requirements.txt file has been configured with compatible versions. Do not m
 
    **Windows:**
    ```
-   setup_and_run_poetry.bat
+   setup_and_run.bat
    ```
 
    **Unix/MacOS:**
    ```
-   chmod +x setup_and_run_poetry.sh
-   ./setup_and_run_poetry.sh
+   chmod +x setup_and_run.sh
+   ./setup_and_run.sh
    ```
 
    **Alternative (All platforms):**
    ```
-   python setup_poetry.py
+   python run.py
    ```
 
    These scripts will:
    - Check your Python version
    - Create a virtual environment
-   - Install Poetry if not present
-   - Install all dependencies using Poetry
+   - Install all dependencies using `pip` from `requirements.txt`
    - Verify critical dependencies
    - Provide activation instructions
    - Optionally run the application
    
-   **Legacy Setup (using pip):**
-   If you prefer not to use Poetry, the original setup scripts are still available:
-   - Windows: `setup_and_run.bat`
-   - Unix/MacOS: `./setup_and_run.sh`
-   - All platforms: `python setup.py`
+
 
 #### Manual Setup
 
@@ -161,27 +135,13 @@ The requirements.txt file has been configured with compatible versions. Do not m
      ```
      source venv/bin/activate
      ```
-4. Install Poetry:
-   ```
-   pip install poetry
-   ```
-5. Install dependencies using Poetry:
-   ```
-   poetry install
-   ```
-   Or for production dependencies only:
-   ```
-   poetry install --without dev
-   ```
-6. Verify installation:
-   ```
-   python -c "import uvicorn, fastapi, nicegui; print('Dependencies successfully installed!')"
-   ```
-   
-   **Alternative (using pip):**
-   If you prefer not to use Poetry, you can still use pip:
+4. Install dependencies:
    ```
    pip install -r requirements.txt
+   ```
+5. Verify installation:
+   ```
+   python -c "import uvicorn, fastapi, nicegui; print('Dependencies successfully installed!')"
    ```
 
 #### Troubleshooting

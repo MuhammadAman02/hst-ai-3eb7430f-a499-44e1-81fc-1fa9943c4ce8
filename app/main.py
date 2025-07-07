@@ -1,9 +1,12 @@
 from nicegui import ui
-from fastapi import Depends
+from fastapi import Depends, FastAPI
+from nicegui import ui
 import asyncio
 import json
 
 from app.core import app_logger, settings
+
+app = FastAPI()
 
 # Define the main UI page
 @ui.page('/')
@@ -73,3 +76,5 @@ def health_check_page():
 # Note: No ui.run() here. 
 # This file only defines the UI pages and elements.
 # The actual server will be started by project_base/main.py
+
+ui.run_with(app)
